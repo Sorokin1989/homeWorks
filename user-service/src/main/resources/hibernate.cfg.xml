@@ -18,8 +18,8 @@
         <property name="hibernate.hbm2ddl.auto">update</property>
 
         <!-- 4. Логи -->
-        <property name="hibernate.show_sql">true</property>
-        <property name="hibernate.format_sql">true</property>
+        <property name="hibernate.show_sql">false</property>
+        <property name="hibernate.format_sql">false</property>
 
         <!-- 5. Список сущностей -->
         <mapping class="org.example.entity.User"/>

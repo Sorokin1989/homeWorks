@@ -9,14 +9,13 @@ public class Main {
 
 
         try {
-        UserDao userDao = new UserDao();
-        ConsoleMenu consoleMenu=new ConsoleMenu(userDao);
-        consoleMenu.mainMenu();
+            UserDao userDao = new UserDao();
+            ConsoleMenu consoleMenu = new ConsoleMenu(userDao);
+            consoleMenu.mainMenu();
 
-        }finally {
+        } finally {
             HibernateUtil.shutdown();
         }
-
 
 
     }

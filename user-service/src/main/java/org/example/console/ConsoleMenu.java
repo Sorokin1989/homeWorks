@@ -1,12 +1,24 @@
 package org.example.console;
 
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.example.dao.UserDao;
+import org.example.dto.UserDto;
 import org.example.entity.User;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Scanner;
+import java.util.Set;
 
+@Slf4j
 public class ConsoleMenu {
+
+    private static final ValidatorFactory FACTORY = Validation.buildDefaultValidatorFactory();
+    private static final Validator VALIDATOR = FACTORY.getValidator();
 
     private final UserDao userDao;
     private final Scanner scanner;
@@ -20,7 +32,12 @@ public class ConsoleMenu {
         while (true) {
             printMenu();
 
-            int option = readInteger("Введите номер: ");
+            Integer option = readInteger("Введите номер: ");
+
+            if (option==null){
+                return;
+            }
+
             switch (option) {
                 case 1:
                     createUser();
@@ -69,13 +86,19 @@ public class ConsoleMenu {
         String email = readString("Введите email: ");
         Integer age = readInteger("Введите возраст: ");
 
-        User newUser = new User(username, email, age);
+        UserDto userDto = new UserDto(null, username, email, age);
+
+        if (!validate(userDto)) {
+            return;
+        }
 
         try {
+            User newUser = toUser(userDto, null);
             userDao.save(newUser);
-            System.out.println("Создан " + newUser);
-
+            log.info("Пользователь создан: {}", newUser);
+            System.out.println("Пользователь создан! " + newUser);
         } catch (Exception e) {
+            log.error("Ошибка при создании пользователя  ", e);
             System.out.println("Ошибка " + e.getMessage());
         }
     }
@@ -86,8 +109,11 @@ public class ConsoleMenu {
 
         User user = userDao.findById(Long.valueOf(id));
         if (user != null) {
-            System.out.println("Найден: " + user);
+            UserDto userDto = toUserDto(user);
+            log.info("Пользователь найден: {}", userDto);
+            System.out.println("Найден: " + userDto);
         } else {
+            log.info("Пользователь с id {} не найден", id);
             System.out.println("Пользователь с id " + id + " не найден!");
         }
     }
@@ -96,11 +122,13 @@ public class ConsoleMenu {
         List<User> users = userDao.findAll();
 
         if (users.isEmpty()) {
+            log.info("Список пользователей пуст");
             System.out.println("Список пуст! ");
         } else {
-            for (User user : users) {
-                System.out.println("Список пользователей: " + user);
-            }
+            log.info("Пользователи найдены: {}", users.size());
+            System.out.println("Список пользователей: ");
+            users.stream().map(this::toUserDto).forEach(System.out::println);
+
         }
     }
 
@@ -108,23 +136,29 @@ public class ConsoleMenu {
         Integer id = readInteger("Id: ");
         User user = userDao.findById(Long.valueOf(id));
         if (user == null) {
-            System.out.println("Пользователь с id " + id + "не найден!");
+            System.out.println("Пользователь с id " + id + " не найден!");
             return;
         }
-            String username = readString("Введите новое имя: ");
-            String email = readString("Введите новый email: ");
-            Integer age = readInteger("Введите новый возраст: ");
+        String username = readString("Введите новое имя: ");
+        String email = readString("Введите новый email: ");
+        Integer age = readInteger("Введите новый возраст: ");
 
-            user.setName(username);
-            user.setEmail(email);
-            user.setAge(age);
+        UserDto userDto = new UserDto(user.getId(), username, email, age);
+        if (!validate(userDto)) {
+            return;
+        }
 
-            try {
-                userDao.update(user);
-                System.out.println("Обновлен " + user);
+        User updated = toUser(userDto, user.getCreatedAt());
 
-            } catch (Exception e) {
-                System.out.println("Ошибка обновления " + e.getMessage());
+
+        try {
+            userDao.update(updated);
+            log.info("Пользователь обновлен: {}", updated);
+            System.out.println("Обновлен " + updated);
+
+        } catch (Exception e) {
+            log.error("Ошибка обновления пользователя с id {}", id, e);
+            System.out.println("Ошибка обновления " + e.getMessage());
 
 
         }
@@ -135,14 +169,16 @@ public class ConsoleMenu {
 
         User user = userDao.findById((long) id);
         if (user == null) {
-            System.out.println("Пользователя с id " + id + "нет!");
+            System.out.println("Пользователя с id " + id + " нет!");
             return;
         }
 
         try {
             userDao.deleteById((long) id);
+            log.info("Пользователь удален: {}", user);
             System.out.println("Пользователь с id " + id + " удален");
         } catch (Exception e) {
+            log.error("Ошибка удаления пользователя с id {}", id, e);
             System.out.println("Ошибка " + e.getMessage());
         }
 
@@ -157,8 +193,13 @@ public class ConsoleMenu {
     private Integer readInteger(String prompt) {
 
         while (true) {
-            System.out.println(prompt);
+            System.out.print(prompt);
             String input = scanner.nextLine();
+
+            if (input.isEmpty()) {
+                System.out.println("Ввод отменён.");
+                return null;
+            }
             try {
                 return Integer.parseInt(input);
             } catch (NumberFormatException e) {
@@ -166,5 +207,36 @@ public class ConsoleMenu {
 
             }
         }
+    }
+
+    private boolean validate(UserDto userDto) {
+        Set<ConstraintViolation<UserDto>> violations = VALIDATOR.validate(userDto);
+        if (!violations.isEmpty()) {
+            System.out.println("Ошибки ввода:");
+            for (ConstraintViolation<UserDto> v : violations) {
+                System.out.println(" - " + v.getMessage());
+            }
+            return false;
+        }
+        return true;
+    }
+
+    private User toUser(UserDto userDto, LocalDateTime createdAt) {
+        User user = new User();
+        user.setId(userDto.getId());
+        user.setName(userDto.getName());
+        user.setEmail(userDto.getEmail());
+        user.setAge(userDto.getAge());
+        user.setCreatedAt(createdAt);
+        return user;
+    }
+
+    private UserDto toUserDto(User user) {
+        UserDto userDto = new UserDto();
+        userDto.setId(user.getId());
+        userDto.setName(user.getName());
+        userDto.setEmail(user.getEmail());
+        userDto.setAge(user.getAge());
+        return userDto;
     }
 }
