@@ -22,19 +22,19 @@ public class User {
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false, unique = true)
-    private String email;
-
     @Column(nullable = false)
     private Integer age;
+
+    @Column(nullable = false, unique = true)
+    private String email;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
-    public User(String name, String email, Integer age) {
+    public User(String name,Integer age, String email) {
         this.name = name;
-        this.email = email;
         this.age = age;
+        this.email = email;
     }
 }

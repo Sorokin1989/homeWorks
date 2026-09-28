@@ -24,8 +24,12 @@ public class ConsoleMenu {
     private final Scanner scanner;
 
     public ConsoleMenu(UserDao userDao) {
+       this(userDao,new Scanner(System.in));
+    }
+
+    public ConsoleMenu(UserDao userDao, Scanner scanner) {
         this.userDao = userDao;
-        this.scanner = new Scanner(System.in);
+        this.scanner = scanner;
     }
 
     public void mainMenu() {
@@ -69,7 +73,7 @@ public class ConsoleMenu {
 
     }
 
-    private void printMenu() {
+    public void printMenu() {
         System.out.println(
                 "=== User Service ===\n" +
                         "1. Создать пользователя\n" +
@@ -81,7 +85,7 @@ public class ConsoleMenu {
         );
     }
 
-    private void createUser() {
+    public void createUser() {
         String username = readString("Введите имя: ");
         String email = readString("Введите email: ");
         Integer age = readInteger("Введите возраст: ");
@@ -103,7 +107,7 @@ public class ConsoleMenu {
         }
     }
 
-    private void findUser() {
+    public void findUser() {
 
         Integer id = readInteger("Id: ");
 
@@ -118,7 +122,7 @@ public class ConsoleMenu {
         }
     }
 
-    private void findAllUsers() {
+   public void findAllUsers() {
         List<User> users = userDao.findAll();
 
         if (users.isEmpty()) {
@@ -132,7 +136,7 @@ public class ConsoleMenu {
         }
     }
 
-    private void updateUser() {
+   public void updateUser() {
         Integer id = readInteger("Id: ");
         User user = userDao.findById(Long.valueOf(id));
         if (user == null) {
@@ -164,7 +168,7 @@ public class ConsoleMenu {
         }
     }
 
-    private void deleteUser() {
+    public void deleteUser() {
         int id = readInteger("Id: ");
 
         User user = userDao.findById((long) id);
