@@ -16,18 +16,18 @@ public class UserDto {
     @Size(min = 2, max = 20, message = "Имя от 2 до 20 символов")
     private String name;
 
-    @NotBlank(message = "Email не может быть пустым!")
-    @Email(message = "Некорректный email")
-    private String email;
 
     @NotNull(message = "Поле не может быть пустым!")
     @Min(value = 0, message = "Возраст не может быть отрицательным!")
     @Max(value = 100, message = "Возраст не может быть больше 100")
     private Integer age;
 
-    public UserDto(String name, String email, Integer age) {
+    @NotBlank(message = "Email не может быть пустым!")
+    @Email(message = "Некорректный email")
+    private String email;
+    public UserDto(String name,Integer age,String email) {
         this.name = name;
-        this.email = email;
         this.age = age;
+        this.email = email;
     }
 }

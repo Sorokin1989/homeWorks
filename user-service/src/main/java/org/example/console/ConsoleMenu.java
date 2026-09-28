@@ -87,10 +87,10 @@ public class ConsoleMenu {
 
     public void createUser() {
         String username = readString("Введите имя: ");
-        String email = readString("Введите email: ");
         Integer age = readInteger("Введите возраст: ");
+        String email = readString("Введите email: ");
 
-        UserDto userDto = new UserDto(null, username, email, age);
+        UserDto userDto = new UserDto(null, username, age,email);
 
         if (!validate(userDto)) {
             return;
@@ -144,10 +144,10 @@ public class ConsoleMenu {
             return;
         }
         String username = readString("Введите новое имя: ");
-        String email = readString("Введите новый email: ");
         Integer age = readInteger("Введите новый возраст: ");
+        String email = readString("Введите новый email: ");
 
-        UserDto userDto = new UserDto(user.getId(), username, email, age);
+        UserDto userDto = new UserDto(user.getId(),username,age,email);
         if (!validate(userDto)) {
             return;
         }
