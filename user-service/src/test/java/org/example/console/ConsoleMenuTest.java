@@ -35,11 +35,44 @@ class ConsoleMenuTest {
 //    }
 
     @Test
-    void notValidate() throws Exception {
+    void createUserInvalidAgeDoesNotCallDao() throws Exception {
         User user = new User();
         user.setName("Test");
         user.setAge(125);
         user.setEmail("www@rambler.ru");
+
+        when(scanner.nextLine()).thenReturn(user.getName())
+                .thenReturn(String.valueOf(user.getAge())).
+                thenReturn(user.getEmail());
+
+        consoleMenu.createUser();
+
+        verify(userDao,never()).save(any(User.class));
+
+    }
+    @Test
+    void createUserInvalidNameDoesNotCallDao() throws Exception {
+        User user = new User();
+        user.setName("T");
+        user.setAge(25);
+        user.setEmail("www@rambler.ru");
+
+        when(scanner.nextLine()).thenReturn(user.getName())
+                .thenReturn(String.valueOf(user.getAge())).
+                thenReturn(user.getEmail());
+
+        consoleMenu.createUser();
+
+        verify(userDao,never()).save(any(User.class));
+
+    }
+
+    @Test
+    void createUserInvalidEmailDoesNotCallDao() throws Exception {
+        User user = new User();
+        user.setName("Test");
+        user.setAge(25);
+        user.setEmail("www");
 
         when(scanner.nextLine()).thenReturn(user.getName())
                 .thenReturn(String.valueOf(user.getAge())).
@@ -98,7 +131,7 @@ class ConsoleMenuTest {
     }
 
     @Test
-    void findUser_cancelledInput_doesNotCallDao() throws Exception {
+    void findUserIdIsEmptyDoesNotCallDao() throws Exception {
         when(scanner.nextLine()).thenReturn("");
 
         consoleMenu.findUser();
@@ -161,7 +194,7 @@ class ConsoleMenuTest {
     }
 
     @Test
-    void updateUserIdIsNullDoesNotCallDao(){
+    void updateUserIdIsNullDoesNotCallDao() throws Exception {
         when(scanner.nextLine()).thenReturn("");
 
         consoleMenu.updateUser();
@@ -181,5 +214,154 @@ class ConsoleMenuTest {
 
     }
 
+    @Test
+    void updateUserInvalidNameDoesNotCallUpdate() throws Exception {
+
+        UserDto  userDto = new UserDto();
+        userDto.setId(1L);
+        userDto.setName("t");
+        userDto.setAge(25);
+        userDto.setEmail("www@rambler.ru");
+
+        User oldUser=new User();
+        oldUser.setId(1L);
+        oldUser.setName("t");
+        oldUser.setAge(25);
+        oldUser.setEmail("www@rambler.ru");
+
+
+        when(scanner.nextLine()).thenReturn(String.valueOf(userDto.getId()))
+                .thenReturn(userDto.getName())
+                .thenReturn(String.valueOf(userDto.getAge()))
+                .thenReturn(userDto.getEmail());
+
+        when(userDao.findById(userDto.getId())).thenReturn(oldUser);
+
+        consoleMenu.updateUser();
+
+        verify(userDao).findById(userDto.getId());
+        verify(userDao,never()).update(any(User.class));
+
+    }
+
+    @Test
+    void updateUserInvalidAgeDoesNotCallUpdate() throws Exception {
+
+        UserDto  userDto = new UserDto();
+        userDto.setId(1L);
+        userDto.setName("test");
+        userDto.setAge(300);
+        userDto.setEmail("www@rambler.ru");
+
+        User oldUser=new User();
+        oldUser.setId(1L);
+        oldUser.setName("test");
+        oldUser.setAge(25);
+        oldUser.setEmail("www@rambler.ru");
+
+
+        when(scanner.nextLine()).thenReturn(String.valueOf(userDto.getId()))
+                .thenReturn(userDto.getName())
+                .thenReturn(String.valueOf(userDto.getAge()))
+                .thenReturn(userDto.getEmail());
+
+        when(userDao.findById(userDto.getId())).thenReturn(oldUser);
+
+        consoleMenu.updateUser();
+
+        verify(userDao).findById(userDto.getId());
+        verify(userDao,never()).update(any(User.class));
+
+    }
+
+    @Test
+    void updateUserInvalidEmailDoesNotCallUpdate() throws Exception {
+
+        UserDto  userDto = new UserDto();
+        userDto.setId(1L);
+        userDto.setName("test");
+        userDto.setAge(30);
+        userDto.setEmail("www");
+
+        User oldUser=new User();
+        oldUser.setId(1L);
+        oldUser.setName("test");
+        oldUser.setAge(25);
+        oldUser.setEmail("www@rambler.ru");
+
+
+        when(scanner.nextLine()).thenReturn(String.valueOf(userDto.getId()))
+                .thenReturn(userDto.getName())
+                .thenReturn(String.valueOf(userDto.getAge()))
+                .thenReturn(userDto.getEmail());
+
+        when(userDao.findById(userDto.getId())).thenReturn(oldUser);
+
+        consoleMenu.updateUser();
+
+        verify(userDao).findById(userDto.getId());
+        verify(userDao,never()).update(any(User.class));
+
+    }
+
+
+    @Test
+    void updateUserSuccess() throws Exception {
+
+        UserDto userDto = new UserDto();
+        userDto.setId(1L);
+        userDto.setName("dima");
+        userDto.setAge(45);
+        userDto.setEmail("www@mail.ru");
+
+        User oldUser=new User();
+        oldUser.setId(1L);
+        oldUser.setName("test");
+        oldUser.setAge(25);
+        oldUser.setEmail("uuu@rambler.ru");
+
+        when(scanner.nextLine())
+                .thenReturn(String.valueOf(userDto.getId()))
+                .thenReturn(userDto.getName())
+                .thenReturn(String.valueOf(userDto.getAge()))
+                .thenReturn(userDto.getEmail());
+        when(userDao.findById(userDto.getId())).thenReturn(oldUser);
+
+        consoleMenu.updateUser();
+
+        verify(userDao).findById(userDto.getId());
+        verify(userDao).update(any(User.class));
+    }
+
+    @Test
+    void updateUserFail() throws Exception {
+
+        UserDto userDto = new UserDto();
+        userDto.setId(1L);
+        userDto.setName("dima");
+        userDto.setAge(45);
+        userDto.setEmail("www@mail.ru");
+
+        User oldUser=new User();
+        oldUser.setId(1L);
+        oldUser.setName("test");
+        oldUser.setAge(25);
+        oldUser.setEmail("uuu@rambler.ru");
+
+        when(scanner.nextLine()).thenReturn(String.valueOf(userDto.getId()))
+                .thenReturn(userDto.getName())
+                .thenReturn(String.valueOf(userDto.getAge()))
+                .thenReturn(userDto.getEmail());
+        when(userDao.findById(userDto.getId())).thenReturn(oldUser);
+        doThrow(new Exception("Ошибка")).when(userDao).update(any(User.class));
+
+        assertDoesNotThrow(()->consoleMenu.updateUser());
+
+        verify(userDao).findById(userDto.getId());
+        verify(userDao).update(any(User.class));
+
+
+
+    }
 
 }

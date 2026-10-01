@@ -67,7 +67,7 @@ public class UserDao {
         }
     }
 
-    public User update(User user) {
+    public User update(User user) throws Exception{
 
         User mergedUser;
         try (Session session = sessionFactory.openSession()) {
