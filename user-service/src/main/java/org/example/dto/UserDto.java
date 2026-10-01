@@ -3,6 +3,8 @@ package org.example.dto;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @ToString
@@ -25,9 +27,9 @@ public class UserDto {
     @NotBlank(message = "Email не может быть пустым!")
     @Email(message = "Некорректный email")
     private String email;
-    public UserDto(String name,Integer age,String email) {
-        this.name = name;
-        this.age = age;
-        this.email = email;
-    }
+
+
+
+
 }
+

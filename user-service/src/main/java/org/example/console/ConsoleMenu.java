@@ -9,7 +9,6 @@ import org.example.dao.UserDao;
 import org.example.dto.UserDto;
 import org.example.entity.User;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
@@ -24,7 +23,7 @@ public class ConsoleMenu {
     private final Scanner scanner;
 
     public ConsoleMenu(UserDao userDao) {
-       this(userDao,new Scanner(System.in));
+        this(userDao, new Scanner(System.in));
     }
 
     public ConsoleMenu(UserDao userDao, Scanner scanner) {
@@ -38,7 +37,7 @@ public class ConsoleMenu {
 
             Integer option = readInteger("Введите номер: ");
 
-            if (option==null){
+            if (option == null) {
                 return;
             }
 
@@ -90,14 +89,14 @@ public class ConsoleMenu {
         Integer age = readInteger("Введите возраст: ");
         String email = readString("Введите email: ");
 
-        UserDto userDto = new UserDto(null, username, age,email);
+        UserDto userDto = new UserDto(null, username, age, email);
 
         if (!validate(userDto)) {
             return;
         }
 
         try {
-            User newUser = toUser(userDto, null);
+            User newUser = toUser(userDto);
             userDao.save(newUser);
             log.info("Пользователь создан: {}", newUser);
             System.out.println("Пользователь создан! " + newUser);
@@ -111,6 +110,10 @@ public class ConsoleMenu {
 
         Integer id = readInteger("Id: ");
 
+        if (id == null) {
+            return;
+        }
+
         User user = userDao.findById(Long.valueOf(id));
         if (user != null) {
             UserDto userDto = toUserDto(user);
@@ -122,7 +125,7 @@ public class ConsoleMenu {
         }
     }
 
-   public void findAllUsers() {
+    public void findAllUsers() {
         List<User> users = userDao.findAll();
 
         if (users.isEmpty()) {
@@ -136,8 +139,11 @@ public class ConsoleMenu {
         }
     }
 
-   public void updateUser() {
+    public void updateUser() {
         Integer id = readInteger("Id: ");
+        if (id == null) {
+            return;
+        }
         User user = userDao.findById(Long.valueOf(id));
         if (user == null) {
             System.out.println("Пользователь с id " + id + " не найден!");
@@ -147,18 +153,22 @@ public class ConsoleMenu {
         Integer age = readInteger("Введите новый возраст: ");
         String email = readString("Введите новый email: ");
 
-        UserDto userDto = new UserDto(user.getId(),username,age,email);
+        UserDto userDto = new UserDto(user.getId(), username, age, email);
         if (!validate(userDto)) {
             return;
         }
 
-        User updated = toUser(userDto, user.getCreatedAt());
+
+//        User updated = toUser(userDto, user.getCreatedAt());
+        user.setName(userDto.getName());
+        user.setAge(userDto.getAge());
+        user.setEmail(userDto.getEmail());
 
 
         try {
-            userDao.update(updated);
-            log.info("Пользователь обновлен: {}", updated);
-            System.out.println("Обновлен " + updated);
+            userDao.update(user);
+            log.info("Пользователь обновлен: {}", user);
+            System.out.println("Обновлен " + user);
 
         } catch (Exception e) {
             log.error("Ошибка обновления пользователя с id {}", id, e);
@@ -169,16 +179,19 @@ public class ConsoleMenu {
     }
 
     public void deleteUser() {
-        int id = readInteger("Id: ");
+        Integer id = readInteger("Id: ");
 
-        User user = userDao.findById((long) id);
+        if (id == null) {
+            return;
+        }
+        User user = userDao.findById(Long.valueOf(id));
         if (user == null) {
             System.out.println("Пользователя с id " + id + " нет!");
             return;
         }
 
         try {
-            userDao.deleteById((long) id);
+            userDao.deleteById(Long.valueOf(id));
             log.info("Пользователь удален: {}", user);
             System.out.println("Пользователь с id " + id + " удален");
         } catch (Exception e) {
@@ -200,6 +213,10 @@ public class ConsoleMenu {
             System.out.print(prompt);
             String input = scanner.nextLine();
 
+//            if (input == null) {
+//                System.out.println("Поток ввода закрыт.");
+//                return null;
+//            }
             if (input.isEmpty()) {
                 System.out.println("Ввод отменён.");
                 return null;
@@ -225,13 +242,12 @@ public class ConsoleMenu {
         return true;
     }
 
-    private User toUser(UserDto userDto, LocalDateTime createdAt) {
+    private User toUser(UserDto userDto) {
         User user = new User();
         user.setId(userDto.getId());
         user.setName(userDto.getName());
         user.setEmail(userDto.getEmail());
         user.setAge(userDto.getAge());
-        user.setCreatedAt(createdAt);
         return user;
     }
 

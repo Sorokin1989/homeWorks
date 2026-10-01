@@ -13,7 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 import java.util.Scanner;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -35,7 +35,7 @@ class ConsoleMenuTest {
 //    }
 
     @Test
-    void notValidate() {
+    void notValidate() throws Exception {
         User user = new User();
         user.setName("Test");
         user.setAge(125);
@@ -49,12 +49,10 @@ class ConsoleMenuTest {
 
         verify(userDao,never()).save(any(User.class));
 
-
-
     }
 
     @Test
-    void createUser() {
+    void createUser() throws Exception {
         User user = new User();
         user.setName("Test");
         user.setAge(25);
@@ -74,8 +72,38 @@ class ConsoleMenuTest {
         assertEquals(user.getName(), savedUser.getName());
         assertEquals(user.getAge(), savedUser.getAge());
         assertEquals(user.getEmail(), savedUser.getEmail());
+    }
+
+    @Test
+    void createUserWhenSaveThrowsException() throws Exception {
+        User user = new User();
+        user.setName("test");
+        user.setAge(25);
+        user.setEmail("aaa@rambler.ru");
+
+        when(scanner.nextLine())
+                .thenReturn(user.getName())
+                .thenReturn(String.valueOf(user.getAge()))
+                .thenReturn(user.getEmail());
+
+        doThrow(new Exception("Ошибка БД"))
+                .when(userDao).save(any(User.class));
+
+        assertDoesNotThrow(() -> consoleMenu.createUser());
+
+        verify(userDao).save(any(User.class));
 
 
+
+    }
+
+    @Test
+    void findUser_cancelledInput_doesNotCallDao() throws Exception {
+        when(scanner.nextLine()).thenReturn("");
+
+        consoleMenu.findUser();
+
+        verify(userDao, never()).findById(anyLong());
     }
 
     @Test
@@ -118,13 +146,39 @@ class ConsoleMenuTest {
 
         verify(userDao).findAll();
 
+        verifyNoMoreInteractions(userDao);
+
     }
 
     @Test
-    void notFindListUsers() {
-        when(userDao.findAll()).thenReturn(null);
+    void findAllUsers_callsDao() {
+
+        when(userDao.findAll()).thenReturn(List.of());
         consoleMenu.findAllUsers();
         verify(userDao).findAll();
+
+        verifyNoMoreInteractions(userDao);
+    }
+
+    @Test
+    void updateUserIdIsNullDoesNotCallDao(){
+        when(scanner.nextLine()).thenReturn("");
+
+        consoleMenu.updateUser();
+
+        verify(userDao, never()).findById(anyLong());
+        verify(userDao,never()).update(any(User.class));
+    }
+
+    @Test
+    void  updateUserUserNotFoundDoesNotCallUpdate(){
+        when(scanner.nextLine()).thenReturn("1");
+        when(userDao.findById(anyLong())).thenReturn(null);
+
+        consoleMenu.updateUser();
+
+        verify(userDao).findById(anyLong());
+
     }
 
 

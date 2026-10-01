@@ -21,7 +21,11 @@ public class UserDao {
     }
 
 
-    public void save(User user) {
+    public User save(User user) throws Exception{
+
+        if (user == null) {
+            throw new IllegalArgumentException("User must not be null");
+        }
         try (Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
             try {
@@ -32,6 +36,7 @@ public class UserDao {
                 throw e;
             }
         }
+        return user;
     }
 
     public User findById(Long id) {
