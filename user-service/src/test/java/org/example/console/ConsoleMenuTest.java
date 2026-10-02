@@ -13,7 +13,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 import java.util.Scanner;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -47,9 +48,10 @@ class ConsoleMenuTest {
 
         consoleMenu.createUser();
 
-        verify(userDao,never()).save(any(User.class));
+        verify(userDao, never()).save(any(User.class));
 
     }
+
     @Test
     void createUserInvalidNameDoesNotCallDao() throws Exception {
         User user = new User();
@@ -63,7 +65,7 @@ class ConsoleMenuTest {
 
         consoleMenu.createUser();
 
-        verify(userDao,never()).save(any(User.class));
+        verify(userDao, never()).save(any(User.class));
 
     }
 
@@ -80,7 +82,7 @@ class ConsoleMenuTest {
 
         consoleMenu.createUser();
 
-        verify(userDao,never()).save(any(User.class));
+        verify(userDao, never()).save(any(User.class));
 
     }
 
@@ -125,7 +127,6 @@ class ConsoleMenuTest {
         assertDoesNotThrow(() -> consoleMenu.createUser());
 
         verify(userDao).save(any(User.class));
-
 
 
     }
@@ -200,11 +201,11 @@ class ConsoleMenuTest {
         consoleMenu.updateUser();
 
         verify(userDao, never()).findById(anyLong());
-        verify(userDao,never()).update(any(User.class));
+        verify(userDao, never()).update(any(User.class));
     }
 
     @Test
-    void  updateUserUserNotFoundDoesNotCallUpdate(){
+    void updateUserUserNotFoundDoesNotCallUpdate() {
         when(scanner.nextLine()).thenReturn("1");
         when(userDao.findById(anyLong())).thenReturn(null);
 
@@ -217,13 +218,13 @@ class ConsoleMenuTest {
     @Test
     void updateUserInvalidNameDoesNotCallUpdate() throws Exception {
 
-        UserDto  userDto = new UserDto();
+        UserDto userDto = new UserDto();
         userDto.setId(1L);
         userDto.setName("t");
         userDto.setAge(25);
         userDto.setEmail("www@rambler.ru");
 
-        User oldUser=new User();
+        User oldUser = new User();
         oldUser.setId(1L);
         oldUser.setName("t");
         oldUser.setAge(25);
@@ -240,20 +241,20 @@ class ConsoleMenuTest {
         consoleMenu.updateUser();
 
         verify(userDao).findById(userDto.getId());
-        verify(userDao,never()).update(any(User.class));
+        verify(userDao, never()).update(any(User.class));
 
     }
 
     @Test
     void updateUserInvalidAgeDoesNotCallUpdate() throws Exception {
 
-        UserDto  userDto = new UserDto();
+        UserDto userDto = new UserDto();
         userDto.setId(1L);
         userDto.setName("test");
         userDto.setAge(300);
         userDto.setEmail("www@rambler.ru");
 
-        User oldUser=new User();
+        User oldUser = new User();
         oldUser.setId(1L);
         oldUser.setName("test");
         oldUser.setAge(25);
@@ -270,20 +271,20 @@ class ConsoleMenuTest {
         consoleMenu.updateUser();
 
         verify(userDao).findById(userDto.getId());
-        verify(userDao,never()).update(any(User.class));
+        verify(userDao, never()).update(any(User.class));
 
     }
 
     @Test
     void updateUserInvalidEmailDoesNotCallUpdate() throws Exception {
 
-        UserDto  userDto = new UserDto();
+        UserDto userDto = new UserDto();
         userDto.setId(1L);
         userDto.setName("test");
         userDto.setAge(30);
         userDto.setEmail("www");
 
-        User oldUser=new User();
+        User oldUser = new User();
         oldUser.setId(1L);
         oldUser.setName("test");
         oldUser.setAge(25);
@@ -300,7 +301,7 @@ class ConsoleMenuTest {
         consoleMenu.updateUser();
 
         verify(userDao).findById(userDto.getId());
-        verify(userDao,never()).update(any(User.class));
+        verify(userDao, never()).update(any(User.class));
 
     }
 
@@ -314,7 +315,7 @@ class ConsoleMenuTest {
         userDto.setAge(45);
         userDto.setEmail("www@mail.ru");
 
-        User oldUser=new User();
+        User oldUser = new User();
         oldUser.setId(1L);
         oldUser.setName("test");
         oldUser.setAge(25);
@@ -342,7 +343,7 @@ class ConsoleMenuTest {
         userDto.setAge(45);
         userDto.setEmail("www@mail.ru");
 
-        User oldUser=new User();
+        User oldUser = new User();
         oldUser.setId(1L);
         oldUser.setName("test");
         oldUser.setAge(25);
@@ -355,13 +356,73 @@ class ConsoleMenuTest {
         when(userDao.findById(userDto.getId())).thenReturn(oldUser);
         doThrow(new Exception("Ошибка")).when(userDao).update(any(User.class));
 
-        assertDoesNotThrow(()->consoleMenu.updateUser());
+        assertDoesNotThrow(() -> consoleMenu.updateUser());
 
         verify(userDao).findById(userDto.getId());
         verify(userDao).update(any(User.class));
 
+    }
+
+    @Test
+    void deleteUserIdIsNullDoesNotCallDao() throws Exception {
+
+        when(scanner.nextLine()).thenReturn("");
+
+        consoleMenu.deleteUser();
+
+        verify(userDao, never()).findById(anyLong());
+        verify(userDao, never()).deleteById(anyLong());
+    }
+
+    @Test
+    void deleteUserUserIsNullDoesNotCallDao() throws Exception {
+        when(scanner.nextLine()).thenReturn("1");
+        when(userDao.findById(1L)).thenReturn(null);
 
 
+        consoleMenu.deleteUser();
+
+        verify(userDao).findById(1L);
+        verify(userDao, never()).deleteById(1L);
+
+    }
+
+    @Test
+    void deleteUserSuccess() throws Exception {
+
+        User user = new User();
+        user.setId(1L);
+        user.setName("test");
+        user.setAge(30);
+        user.setEmail("www.mail.ru");
+
+        when(scanner.nextLine()).thenReturn("1");
+        when(userDao.findById(1L)).thenReturn(user);
+
+        consoleMenu.deleteUser();
+
+        verify(userDao).findById(1L);
+        verify(userDao).deleteById(1L);
+
+    }
+
+    @Test
+    void deleteUserFail() throws Exception {
+
+        User user = new User();
+        user.setId(1L);
+        user.setName("test");
+        user.setAge(25);
+        user.setEmail("www.mail.ru");
+
+        when(scanner.nextLine()).thenReturn("1");
+        when(userDao.findById(1L)).thenReturn(user);
+        doThrow(new Exception("Ошибка удаления")).when(userDao).deleteById(1L);
+
+        assertDoesNotThrow(() -> consoleMenu.deleteUser());
+
+        verify(userDao).findById(1L);
+        verify(userDao).deleteById(1L);
     }
 
 }

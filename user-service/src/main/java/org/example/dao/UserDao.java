@@ -51,7 +51,7 @@ public class UserDao {
         }
     }
 
-    public void deleteById(Long id) {
+    public void deleteById(Long id) throws  Exception {
         try (Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
             try {
