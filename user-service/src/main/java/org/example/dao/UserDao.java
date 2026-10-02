@@ -47,7 +47,7 @@ public class UserDao {
 
     public List<User> findAll() {
         try (Session session = sessionFactory.openSession()) {
-            return session.createQuery("from User", User.class).list();
+            return session.createQuery("from User order by id", User.class).list();
         }
     }
 
