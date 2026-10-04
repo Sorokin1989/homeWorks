@@ -3,16 +3,13 @@ package org.example.dto;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
-
 @Getter
 @Setter
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserDto {
+public class UserRequestDto {
 
-    private Long id;
 
     @NotBlank(message = "Имя не может быть пустым!")
     @Size(min = 2, max = 20, message = "Имя от 2 до 20 символов")

@@ -33,7 +33,7 @@ public class User {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
-    public User(String name,Integer age, String email) {
+    public User(String name, Integer age, String email) {
         this.name = name;
         this.age = age;
         this.email = email;
