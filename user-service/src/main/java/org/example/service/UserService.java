@@ -1,6 +1,7 @@
 package org.example.service;
 
 import lombok.RequiredArgsConstructor;
+import org.example.dto.UserPatchDto;
 import org.example.dto.UserRequestDto;
 import org.example.dto.UserResponseDto;
 import org.example.entity.User;
@@ -68,9 +69,21 @@ public class UserService {
         userRepository.save(findUser);
 
         return userMapper.userToUserResponseDto(findUser);
-
-
     }
+
+    public UserResponseDto updateUserPatch(Long id, UserPatchDto userPatchDto) {
+        if (id == null || id <= 0) {
+            throw new IllegalArgumentException("Некорректное значение id " + id);
+        }
+        User findUser = userRepository.findById(id)
+                .orElseThrow(()->new UserNotFoundException("Пользователя с таким id нет  " + id));
+
+        userMapper.updateUserPatchDto(userPatchDto, findUser);
+
+        userRepository.save(findUser);
+        return userMapper.userToUserResponseDto(findUser);
+    }
+
 
 
     public void deleteUserById(Long id) {
