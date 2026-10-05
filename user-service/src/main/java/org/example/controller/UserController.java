@@ -3,6 +3,7 @@ package org.example.controller;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
+import org.example.dto.UserPatchDto;
 import org.example.dto.UserRequestDto;
 import org.example.dto.UserResponseDto;
 import org.example.service.UserService;
@@ -40,6 +41,11 @@ public class UserController {
     @PutMapping("/{id}")
     public ResponseEntity<UserResponseDto> updateUser(@PathVariable @Positive Long id, @Valid @RequestBody UserRequestDto userRequestDto) {
         return ResponseEntity.ok(userService.updateUser(id, userRequestDto));
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<UserResponseDto> updateUserPatch(@PathVariable @Positive Long id, @Valid @RequestBody UserPatchDto userPatchDto) {
+        return ResponseEntity.ok(userService.updateUserPatch(id, userPatchDto));
     }
 
 
