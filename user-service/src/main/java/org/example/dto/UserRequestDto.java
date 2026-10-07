@@ -1,5 +1,6 @@
 package org.example.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
@@ -8,6 +9,7 @@ import lombok.*;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
+@Schema(description = "Объект пользователя для запроса")
 public class UserRequestDto {
 
 
