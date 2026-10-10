@@ -86,8 +86,14 @@ public class ErrorHandler {
     @ExceptionHandler(DataIntegrityViolationException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorResponse handleDataIntegrityViolation(DataIntegrityViolationException e) {
-        log.warn("Нарушение целостности данных: {}", e.getMessage());
+        log.warn("Нарушение уникальности данных: {}", e.getMessage());
         return new ErrorResponse("Нарушение уникальности данных");
+    }
+    @ExceptionHandler(UserExistException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handleUserExistsException(UserExistException e){
+        log.warn("Нарушение уникальности данных: {}", e.getMessage());
+        return new ErrorResponse(e.getMessage());
     }
 
 

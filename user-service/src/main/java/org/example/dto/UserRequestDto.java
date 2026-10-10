@@ -9,6 +9,7 @@ import lombok.*;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode
 @Schema(description = "Объект пользователя для запроса")
 public class UserRequestDto {
 
@@ -26,9 +27,5 @@ public class UserRequestDto {
     @NotBlank(message = "Email не может быть пустым!")
     @Email(message = "Некорректный email")
     private String email;
-
-
-
-
 }
 

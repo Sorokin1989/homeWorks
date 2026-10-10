@@ -9,6 +9,7 @@ import lombok.*;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode
 @Schema(description = "Объект пользователя для частичного обновления")
 public class UserPatchDto {
 

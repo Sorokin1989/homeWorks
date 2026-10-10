@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode
 @Schema(description = "Объект пользователя для ответа")
 public class UserResponseDto {
 

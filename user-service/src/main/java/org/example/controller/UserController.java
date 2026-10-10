@@ -45,8 +45,9 @@ public class UserController {
             ),
     })
     @PostMapping
-    public ResponseEntity<UserResponseDto> createUser(@Valid @RequestBody UserRequestDto userRequestDto) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(userService.createUser(userRequestDto));
+    @ResponseStatus(HttpStatus.CREATED)
+    public UserResponseDto createUser(@Valid @RequestBody UserRequestDto userRequestDto) {
+        return userService.createUser(userRequestDto);
     }
 
 
@@ -57,8 +58,8 @@ public class UserController {
 
     })
     @GetMapping
-    public ResponseEntity<List<UserResponseDto>> findAll() {
-        return ResponseEntity.ok(userService.findAllUsers());
+    public List<UserResponseDto> findAll() {
+        return userService.findAllUsers();
     }
 
     @ApiResponses(value = {
@@ -73,8 +74,8 @@ public class UserController {
             content = @Content(schema = @Schema (implementation = ErrorResponse.class)))
     })
     @GetMapping("/{id}")
-    public ResponseEntity<UserResponseDto> findUserById(@PathVariable @Positive Long id) {
-        return ResponseEntity.ok(userService.findUserById(id));
+    public UserResponseDto findUserById(@PathVariable @Positive Long id) {
+        return userService.findUserById(id);
     }
 
     @ApiResponses(value = {
@@ -92,9 +93,9 @@ public class UserController {
             content = @Content(schema = @Schema (implementation = ErrorResponse.class))),
     })
     @PutMapping("/{id}")
-    public ResponseEntity<UserResponseDto> updateUser(@PathVariable @Positive Long id,
+    public UserResponseDto updateUser(@PathVariable @Positive Long id,
                                                       @Valid @RequestBody UserRequestDto userRequestDto) {
-        return ResponseEntity.ok(userService.updateUser(id, userRequestDto));
+        return userService.updateUser(id, userRequestDto);
     }
 
     @ApiResponses(value = {
@@ -112,9 +113,9 @@ public class UserController {
                     content = @Content(schema = @Schema (implementation = ErrorResponse.class))),
     })
     @PatchMapping("/{id}")
-    public ResponseEntity<UserResponseDto> updateUserPatch(@PathVariable @Positive Long id,
+    public UserResponseDto updateUserPatch(@PathVariable @Positive Long id,
                                                            @Valid @RequestBody UserPatchDto userPatchDto) {
-        return ResponseEntity.ok(userService.updateUserPatch(id, userPatchDto));
+        return userService.updateUserPatch(id, userPatchDto);
     }
 
 
@@ -131,8 +132,8 @@ public class UserController {
     })
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUserById(@PathVariable @Positive Long id) {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteUserById(@PathVariable @Positive Long id) {
         userService.deleteUserById(id);
-        return ResponseEntity.noContent().build();
     }
 }
