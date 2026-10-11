@@ -9,7 +9,7 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface UserMapper {
 
-    @Mapping(target = "")
+    @Mapping(target = "id", ignore = true)
     User userRequestDtoToUser(UserRequestDto userRequestDto);
 
     @Mapping(target = "")
@@ -18,7 +18,7 @@ public interface UserMapper {
     @Mapping(target = "")
     User userResponseDtoToUser(UserResponseDto userResponseDto);
 
-    @Mapping(target = "")
+    @Mapping(source = "id",target = "id")
     UserResponseDto userToUserResponseDto(User user);
 
 

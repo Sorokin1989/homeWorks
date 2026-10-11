@@ -1,18 +1,18 @@
 package org.example.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import lombok.*;
-
-import java.time.LocalDateTime;
 
 @Getter
 @Setter
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserDto {
+@EqualsAndHashCode
+@Schema(description = "Объект пользователя для запроса")
+public class UserRequestDto {
 
-    private Long id;
 
     @NotBlank(message = "Имя не может быть пустым!")
     @Size(min = 2, max = 20, message = "Имя от 2 до 20 символов")
@@ -27,9 +27,5 @@ public class UserDto {
     @NotBlank(message = "Email не может быть пустым!")
     @Email(message = "Некорректный email")
     private String email;
-
-
-
-
 }
 
