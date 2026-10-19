@@ -1,5 +1,6 @@
 package org.example.service;
 
+import org.example.dto.UserNotificationEvent;
 import org.example.dto.UserPatchDto;
 import org.example.dto.UserRequestDto;
 import org.example.dto.UserResponseDto;
@@ -7,9 +8,11 @@ import org.example.entity.User;
 import org.example.exception.UserExistException;
 import org.example.exception.UserNotFoundException;
 import org.example.mapper.UserMapper;
+import org.example.producer.UserEventProducer;
 import org.example.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -27,6 +30,9 @@ class UserServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private UserEventProducer  producer;
 
     @Mock
     private UserMapper userMapper;
@@ -52,6 +58,13 @@ class UserServiceTest {
         when(userMapper.userToUserResponseDto(user)).thenReturn(userResponseDto);
 
         UserResponseDto dto = userService.createUser(userRequestDto);
+
+        ArgumentCaptor<UserNotificationEvent> eventCaptor = ArgumentCaptor.forClass(UserNotificationEvent.class);
+        verify(producer).send(eventCaptor.capture());
+
+        UserNotificationEvent sentEvent = eventCaptor.getValue();
+        assertEquals(UserNotificationEvent.Operation.CREATE, sentEvent.getOperation());
+        assertEquals("asd@mail.ru", sentEvent.getEmail());
 
         verify(userRepository).save(user);
         verify(userRepository).existsByEmail(userRequestDto.getEmail());
@@ -359,6 +372,13 @@ class UserServiceTest {
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
         userService.deleteUserById(1L);
+
+        ArgumentCaptor<UserNotificationEvent> eventCaptor = ArgumentCaptor.forClass(UserNotificationEvent.class);
+        verify(producer).send(eventCaptor.capture());
+
+        UserNotificationEvent sentEvent = eventCaptor.getValue();
+        assertEquals(UserNotificationEvent.Operation.DELETE, sentEvent.getOperation());
+        assertEquals("asd@mail.ru", sentEvent.getEmail());
 
         verify(userRepository).findById(1L);
         verify(userRepository).delete(user);

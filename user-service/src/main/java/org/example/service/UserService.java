@@ -1,6 +1,7 @@
 package org.example.service;
 
 import lombok.RequiredArgsConstructor;
+import org.example.dto.UserNotificationEvent;
 import org.example.dto.UserPatchDto;
 import org.example.dto.UserRequestDto;
 import org.example.dto.UserResponseDto;
@@ -8,6 +9,7 @@ import org.example.entity.User;
 import org.example.exception.UserExistException;
 import org.example.exception.UserNotFoundException;
 import org.example.mapper.UserMapper;
+import org.example.producer.UserEventProducer;
 import org.example.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +22,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final UserEventProducer producer;
 
 
     @Transactional
@@ -31,6 +34,11 @@ public class UserService {
         }
         User user = userMapper.userRequestDtoToUser(userRequestDto);
         User savedUser = userRepository.save(user);
+
+        producer.send(new UserNotificationEvent(savedUser.getEmail(),
+                UserNotificationEvent.Operation.CREATE));
+
+
         return userMapper.userToUserResponseDto(savedUser);
     }
 
@@ -85,6 +93,10 @@ public class UserService {
 
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("Пользователя с таким id нет! " + id));
+
+        producer.send(new UserNotificationEvent(user.getEmail(),
+                UserNotificationEvent.Operation.DELETE));
+
         userRepository.delete(user);
 
 
