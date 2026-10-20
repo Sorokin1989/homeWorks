@@ -54,9 +54,6 @@ class UserControllerTest {
     @Autowired
     private UserRepository userRepository;
 
-    @Autowired
-    private UserMapper userMapper;
-
     @BeforeEach
     void cleanUp() {
         userRepository.deleteAll();
