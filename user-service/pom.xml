@@ -76,6 +76,14 @@
             <artifactId>logback-classic</artifactId>
         </dependency>
 
+        <!-- Source: https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-hateoas -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-hateoas</artifactId>
+            <version>4.1.0</version>
+            <scope>compile</scope>
+        </dependency>
+
         <!-- Jakarta Bean Validation API -->
         <dependency>
             <groupId>jakarta.validation</groupId>
